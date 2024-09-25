@@ -13,8 +13,8 @@ from sqlalchemy import create_engine
 db_url = "postgresql://ngsuidrvwvmomhlkouvd:Rayaku020602@aws-0-ap-southeast-1.pooler.supabase.com:6543/postgres"
 
 # URL Supabase dan kunci API
-supabase_url = "https://your-supabase-url.supabase.co"
-supabase_key = "your-supabase-api-key"
+supabase_url = "https://ngsuidrvwvmomhlkouvd.supabase.co"
+supabase_key = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5nc3VpZHJ2d3Ztb21obGtvdXZkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MjcyNTU5MDgsImV4cCI6MjA0MjgzMTkwOH0.G-hu_TUz5Iskd4c35JGTvLgJ42gi1QOY8AcHudLcT_o"
 
 # Membuat client Supabase
 def create_supabase_client() -> Client:
