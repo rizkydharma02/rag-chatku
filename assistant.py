@@ -1,5 +1,4 @@
 from typing import Optional
-
 from phi.assistant import Assistant
 from phi.knowledge import AssistantKnowledge
 from phi.llm.groq import Groq
@@ -7,10 +6,25 @@ from phi.embedder.openai import OpenAIEmbedder
 from phi.embedder.ollama import OllamaEmbedder
 from phi.vectordb.pgvector import PgVector2
 from phi.storage.assistant.postgres import PgAssistantStorage
+from supabase import create_client, Client
+from sqlalchemy import create_engine
 
-# db_url = "postgresql+psycopg://ai:ai@localhost:5532/ai"
-db_url = "postgresql://postgres.ngsuidrvwvmomhlkouvd:@Rayaku020602@aws-0-ap-southeast-1.pooler.supabase.com:6543/postgres"
+# URL Supabase Postgres yang sudah diperbaiki
+db_url = "postgresql://ngsuidrvwvmomhlkouvd:Rayaku020602@aws-0-ap-southeast-1.pooler.supabase.com:6543/postgres"
 
+# URL Supabase dan kunci API
+supabase_url = "https://your-supabase-url.supabase.co"
+supabase_key = "your-supabase-api-key"
+
+# Membuat client Supabase
+def create_supabase_client() -> Client:
+    return create_client(supabase_url, supabase_key)
+
+# Membuat engine PostgreSQL menggunakan SQLAlchemy
+def create_pg_engine(db_url: str):
+    return create_engine(db_url)
+
+# Membuat instance Assistant
 def get_groq_assistant(
     llm_model: str = "llama3-70b-8192",
     embeddings_model: str = "text-embedding-3-small",
@@ -20,16 +34,23 @@ def get_groq_assistant(
 ) -> Assistant:
     """Get a Groq RAG Assistant."""
 
-    # Define the embedder based on the embeddings model
+    # Tentukan embedder berdasarkan model embeddings
     embedder = (
         OllamaEmbedder(model=embeddings_model, dimensions=768)
         if embeddings_model == "nomic-embed-text"
         else OpenAIEmbedder(model=embeddings_model, dimensions=1536)
     )
-    # Define the embeddings table based on the embeddings model
+    
+    # Tentukan tabel embeddings berdasarkan model embeddings
     embeddings_table = (
         "groq_rag_documents_ollama" if embeddings_model == "nomic-embed-text" else "groq_rag_documents_openai"
     )
+    
+    # Buat Supabase client
+    supabase_client = create_supabase_client()
+
+    # Buat PostgreSQL engine untuk koneksi ke database
+    pg_engine = create_pg_engine(db_url)
 
     return Assistant(
         name="groq_rag_assistant",
@@ -43,7 +64,7 @@ def get_groq_assistant(
                 collection=embeddings_table,
                 embedder=embedder,
             ),
-            # 2 references are added to the prompt
+            # 2 referensi ditambahkan ke prompt
             num_documents=2,
         ),
         description="You are an AI called 'GroqRAG' and your task is to answer questions using the provided information",
@@ -52,13 +73,13 @@ def get_groq_assistant(
             "Carefully read this information and provide a clear and concise answer to the user.",
             "Do not use phrases like 'based on my knowledge' or 'depending on the information'.",
         ],
-        # This setting adds references from the knowledge_base to the user prompt
+        # Pengaturan ini menambahkan referensi dari knowledge_base ke prompt pengguna
         add_references_to_prompt=True,
-        # This setting tells the LLM to format messages in markdown
+        # Pengaturan ini membuat LLM memformat pesan dalam markdown
         markdown=True,
-        # This setting adds chat history to the messages
+        # Pengaturan ini menambahkan histori chat ke pesan
         add_chat_history_to_messages=True,
-        # This setting adds 4 previous messages from chat history to the messages
+        # Pengaturan ini menambahkan 4 pesan sebelumnya dari histori chat ke pesan
         num_history_messages=4,
         add_datetime_to_instructions=True,
         debug_mode=debug_mode,
