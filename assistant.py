@@ -8,8 +8,8 @@ from phi.embedder.ollama import OllamaEmbedder
 from phi.vectordb.pgvector import PgVector2
 from phi.storage.assistant.postgres import PgAssistantStorage
 
-db_url = "postgresql+psycopg://ai:ai@localhost:5532/ai"
-
+# db_url = "postgresql+psycopg://ai:ai@localhost:5532/ai"
+db_url = "postgresql://postgres.ngsuidrvwvmomhlkouvd:@Rayaku020602@aws-0-ap-southeast-1.pooler.supabase.com:6543/postgres"
 
 def get_groq_assistant(
     llm_model: str = "llama3-70b-8192",
